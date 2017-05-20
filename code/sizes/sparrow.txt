@@ -1,0 +1,4 @@
+
+	float length = 15;
+	float wingspan = 19;
+	float weight = 0.030;

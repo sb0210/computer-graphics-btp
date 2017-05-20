@@ -1,0 +1,49 @@
+#Compiler
+CC = g++
+RM = rm -f
+CP = cp
+
+#Directories
+INCLUDEDIR = include
+BUILDDIR = build
+LIBDIR = lib
+BINDIR = bin
+TESTDIR = tests
+SRCDIR = src
+TARGET = $(BINDIR)/simulation
+
+#Sources and objects
+SRCEXT = cpp
+HEADEREXT = h
+SOURCES = $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+OBJECTS = $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SOURCES:.$(SRCEXT)=.o))
+HEADERS = $(shell find $(INCLUDEDIR) -type f -name *.$(HEADEREXT))
+DEPENDENCIES = $(patsubst $(INCLUDEDIR)/%, $(BUILDDIR)/%, $(HEADERS:.h=.d))
+CFLAGS = -MMD -MP
+INC = -I$(INCLUDEDIR)
+LIB =  -lode -ldrawstuff -lGL -lGLEW -lglfw -lX11 -lpthread -lGLU
+
+
+
+all: $(TARGET)
+	$(CP) -r $(SRCDIR)/textures $(BINDIR)/textures
+
+$(TARGET): $(OBJECTS)
+	@echo "Linking ..."
+	$(CC) -o $@ $^ $(LIB)
+
+
+$(BUILDDIR)/%.o : $(SRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(BUILDDIR)
+	$(CC) -c -o $@ $< $(INC) $(CFLAGS)
+
+-include $(DEPENDENCIES)
+# test:
+# 	@echo "Applying test..."
+# 	$(CC) $(TESTDIR)/main.cpp $(OBJECTS) $(CFLAGS) $(INC) $(LIB) -o $(BINDIR)/test
+
+.PHONY: clean
+
+clean:
+	@echo "Cleaning..."
+	$(RM) -r $(BUILDDIR) $(TARGET)
